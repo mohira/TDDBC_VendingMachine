@@ -25,3 +25,7 @@ class BeverageCollection(Enum):
     @classmethod
     def exists(cls, name: str) -> bool:
         return name in cls.name_list()
+
+    @classmethod
+    def beverage_names_can_buy_less_than(cls, price: int):
+        return [beverage.value.name for beverage in cls.line_up() if beverage.value.price <= price]

@@ -39,13 +39,7 @@ class VendingMachine:
         self.deposit = 0
 
     def what_beverage_names_can_buy(self) -> List[str]:
-        # 購入可能な飲料名の一覧を返す。飲料名があればそのままbuy()で使えるため。
-        return [beverage.value.name for beverage in BeverageCollection.line_up() if
-                beverage.value.price <= self.deposit]
-
-    def take_out(self) -> List[Beverage]:
-        bought_beverages = self.take_out_port
-
-        self.take_out_port = []
-
-        return bought_beverages
+        """購入可能な飲料名の一覧を返す
+        BeverageCollectionではなく文字列のリストを返すのは、buy()でそのまま利用できるようにしたかったため。
+        """
+        return BeverageCollection.beverage_names_can_buy_less_than(elf.deposit)
