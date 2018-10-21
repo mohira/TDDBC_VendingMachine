@@ -80,11 +80,17 @@ class TestVendingMachine(unittest.TestCase):
         with self.subTest("購入した飲料が取り出し口に出てくる"):
             self.assertEqual([BeverageCollection.コーラ.value], self.vending_machine.take_out_port)
 
-        with self.subTest("お釣り400円がお釣り口に出てくる"):
+        with self.subTest("お釣り400円がお釣り返却口に出てくる"):
             self.assertEqual(400, self.vending_machine.repayment_port)
 
         with self.subTest("残高が0円になっている"):
             self.assertEqual(0, self.vending_machine.deposit)
+
+    def test_お釣りをお釣り返却口に出すことができる(self):
+        self.vending_machine.insert(Coin.yen500)
+        self.vending_machine.return_change()
+
+        self.assertEqual(500, self.vending_machine.repayment_port)
 
 
 if __name__ == "__main__":

@@ -35,11 +35,15 @@ class VendingMachine:
         self.take_out_port.append(beverage)
 
         self.deposit -= beverage.price
-        self.repayment_port += self.deposit
-        self.deposit = 0
+
+        self.return_change()
 
     def what_beverage_names_can_buy(self) -> List[str]:
         """購入可能な飲料名の一覧を返す
         BeverageCollectionではなく文字列のリストを返すのは、buy()でそのまま利用できるようにしたかったため。
         """
-        return BeverageCollection.beverage_names_can_buy_less_than(elf.deposit)
+        return BeverageCollection.beverage_names_can_buy_less_than(self.deposit)
+
+    def return_change(self) -> None:
+        self.repayment_port += self.deposit
+        self.deposit = 0
