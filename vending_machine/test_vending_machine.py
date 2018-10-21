@@ -12,13 +12,6 @@ class TestVendingMachine(unittest.TestCase):
     def setUp(self):
         self.vending_machine = VendingMachine()
 
-    def test_コインを投入すると残高が増える(self):
-        self.vending_machine.insert(Coin.yen100)
-        self.vending_machine.insert(Coin.yen100)
-        self.vending_machine.insert(Coin.yen100)
-
-        self.assertEqual(300, self.vending_machine.deposit)
-
     def test_必要な残高があれば飲料を購入できる(self):
         with self.subTest("100円あればコーラを購入できる"):
             self.vending_machine.insert(Coin.yen100)
@@ -82,6 +75,15 @@ class TestVendingMachine(unittest.TestCase):
                         BeverageCollection.レッドブル.value.name]
 
             self.assertEqual(expected, self.vending_machine.what_can_buy())
+
+    def test_いくつかの硬貨を使うことができる(self):
+        with self.subTest("10円 50円 100円 500円は使える"):
+            self.vending_machine.insert(Coin.yen10)
+            self.vending_machine.insert(Coin.yen50)
+            self.vending_machine.insert(Coin.yen100)
+            self.vending_machine.insert(Coin.yen500)
+
+            self.assertEqual(660, self.vending_machine.deposit)
 
 
 if __name__ == "__main__":
