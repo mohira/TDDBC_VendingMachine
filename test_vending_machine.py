@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 from dataclasses import dataclass
 from enum import Enum
@@ -15,12 +17,28 @@ class Beverage:
 
 class BeverageCollection(Enum):
     コーラ = Beverage(name="コーラ", price=100)
-    炭酸水 = Beverage(name="炭酸水", price=100)
     烏龍茶 = Beverage(name="烏龍茶", price=100)
+    炭酸水 = Beverage(name="炭酸水", price=100)
     レッドブル = Beverage(name="レッドブル", price=200)
 
+    @classmethod
+    def line_up(cls):
+        return [cls.コーラ, cls.烏龍茶, cls.炭酸水, cls.レッドブル]
 
-class 残高不足Error(Exception):
+    @classmethod
+    def name_list(cls):
+        return [beverage.name for beverage in cls.line_up()]
+
+    @classmethod
+    def exists(cls, name: str) -> bool:
+        return name in cls.name_list()
+
+
+class DepositShortageError(Exception):
+    pass
+
+
+class BeverageNotRegisteredError(Exception):
     pass
 
 
@@ -31,34 +49,19 @@ class VendingMachine:
     def insert(self, coin: Coin) -> None:
         self.deposit += coin.value
 
-    def push_コーラボタン(self) -> Beverage:
-        コーラ = BeverageCollection.コーラ
-        if self.deposit < コーラ.value.price:
-            raise 残高不足Error("コーラは買えないよ")
+    def buy(self, beverage_name: str) -> Beverage:
+        if not BeverageCollection.exists(beverage_name):
+            raise BeverageNotRegisteredError(f"{beverage_name}という飲料はありません")
 
-        return コーラ
+        beverage = BeverageCollection.__getattr__(beverage_name)
 
-    def push_烏龍茶ボタン(self) -> Beverage:
-        烏龍茶 = BeverageCollection.烏龍茶
-        if self.deposit < 烏龍茶.value.price:
-            raise 残高不足Error("烏龍茶は買えないよ")
+        if self.deposit < beverage.value.price:
+            raise DepositShortageError("残高が不足しています")
 
-        return 烏龍茶
+        # 購入できたら残高を差し引かないと何度でも購入できてしまう
+        self.deposit -= beverage.value.price
 
-    def push_炭酸水ボタン(self) -> Beverage:
-        炭酸水 = BeverageCollection.炭酸水
-        if self.deposit < 炭酸水.value.price:
-            raise 残高不足Error("烏龍茶は買えないよ")
-
-        return 炭酸水
-
-    def push_レッドブルボタン(self) -> Beverage:
-        レッドブル = BeverageCollection.レッドブル
-
-        if self.deposit < レッドブル.value.price:
-            raise 残高不足Error("レッドブルは買えないよ")
-
-        return レッドブル
+        return beverage
 
 
 class TestVendingMachine(unittest.TestCase):
@@ -68,34 +71,43 @@ class TestVendingMachine(unittest.TestCase):
     def test_必要な残高があれば飲料を購入できる(self):
         with self.subTest("100円あればコーラを購入できる"):
             self.vending_machine.insert(Coin.yen100)
-            self.assertEqual(BeverageCollection.コーラ, self.vending_machine.push_コーラボタン())
+            self.assertEqual(BeverageCollection.コーラ, self.vending_machine.buy("コーラ"))
 
         with self.subTest("100円あれば烏龍茶を購入できる"):
             self.vending_machine.insert(Coin.yen100)
-            self.assertEqual(BeverageCollection.烏龍茶, self.vending_machine.push_烏龍茶ボタン())
+            self.assertEqual(BeverageCollection.烏龍茶, self.vending_machine.buy("烏龍茶"))
 
         with self.subTest("100円あれば炭酸水を購入できる"):
             self.vending_machine.insert(Coin.yen100)
-            self.assertEqual(BeverageCollection.炭酸水, self.vending_machine.push_炭酸水ボタン())
+            self.assertEqual(BeverageCollection.炭酸水, self.vending_machine.buy("炭酸水"))
 
         with self.subTest("200円あればレッドブルを購入できる"):
             self.vending_machine.insert(Coin.yen100)
             self.vending_machine.insert(Coin.yen100)
 
-            self.assertEqual(BeverageCollection.レッドブル, self.vending_machine.push_レッドブルボタン())
+            self.assertEqual(BeverageCollection.レッドブル, self.vending_machine.buy("レッドブル"))
 
     def test_残高不足の場合の対応(self):
-        with self.subTest("200円以上の残高がないとレッドブルボタンを押してもレッドブルは出ない"):
-            self.assertRaises(残高不足Error, lambda: self.vending_machine.push_レッドブルボタン())
+        with self.subTest("100円以上の残高がないとコーラは購入できない"):
+            self.assertRaises(DepositShortageError, lambda: self.vending_machine.buy("コーラ"))
 
-        with self.subTest("100円以上の残高がないとコーラボタンを押してもコーラは出ない"):
-            self.assertRaises(残高不足Error, lambda: self.vending_machine.push_コーラボタン())
+        with self.subTest("100円以上の残高がないと烏龍茶は購入できない"):
+            self.assertRaises(DepositShortageError, lambda: self.vending_machine.buy("烏龍茶"))
 
-        with self.subTest("200円以上の残高がないと烏龍茶ボタンを押しても烏龍茶は出ない"):
-            self.assertRaises(残高不足Error, lambda: self.vending_machine.push_烏龍茶ボタン())
+        with self.subTest("100円以上の残高がないと炭酸水は購入できない"):
+            self.assertRaises(DepositShortageError, lambda: self.vending_machine.buy("炭酸水"))
 
-        with self.subTest("200円以上の残高がないと炭酸水ボタンを押しても炭酸水は出ない"):
-            self.assertRaises(残高不足Error, lambda: self.vending_machine.push_炭酸水ボタン())
+        with self.subTest("200円以上の残高がないとレッドブルは購入できない"):
+            self.assertRaises(DepositShortageError, lambda: self.vending_machine.buy("レッドブル"))
+
+    def test_飲料を購入したら価格の分だけ残高を減らす(self):
+        self.vending_machine.insert(Coin.yen100)
+        self.vending_machine.buy("コーラ")
+
+        self.assertEqual(0, self.vending_machine.deposit)
+
+    def test_存在しない飲料は購入できない(self):
+        self.assertRaises(BeverageNotRegisteredError, lambda: self.vending_machine.buy("HOGE"))
 
 
 if __name__ == "__main__":
