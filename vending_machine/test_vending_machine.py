@@ -60,6 +60,29 @@ class TestVendingMachine(unittest.TestCase):
     def test_存在しない飲料は購入できない(self):
         self.assertRaises(BeverageNotRegisteredError, lambda: self.vending_machine.buy("HOGE"))
 
+    def test_購入可能な商品名一覧を知ることができる(self):
+        with self.subTest("残高0円の場合は何も購入できない"):
+            self.assertEqual([], self.vending_machine.what_can_buy())
+
+        with self.subTest("残高100円の場合"):
+            self.vending_machine.insert(Coin.yen100)
+
+            expected = [BeverageCollection.コーラ.value.name,
+                        BeverageCollection.烏龍茶.value.name,
+                        BeverageCollection.炭酸水.value.name]
+
+            self.assertEqual(expected, self.vending_machine.what_can_buy())
+
+        with self.subTest("残高200円の場合"):
+            self.vending_machine.insert(Coin.yen100)
+
+            expected = [BeverageCollection.コーラ.value.name,
+                        BeverageCollection.烏龍茶.value.name,
+                        BeverageCollection.炭酸水.value.name,
+                        BeverageCollection.レッドブル.value.name]
+
+            self.assertEqual(expected, self.vending_machine.what_can_buy())
+
 
 if __name__ == "__main__":
     unittest.main()

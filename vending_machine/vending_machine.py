@@ -1,3 +1,5 @@
+from typing import List
+
 from vending_machine.beverage import Beverage, BeverageCollection
 from vending_machine.coin import Coin
 from vending_machine.error import DepositShortageError, BeverageNotRegisteredError
@@ -23,3 +25,8 @@ class VendingMachine:
         self.deposit -= beverage.value.price
 
         return beverage
+
+    def what_can_buy(self) -> List[str]:
+        # 購入可能な飲料名の一覧を出す; 名前があればそのまま指定できるからね！
+        return [beverage.value.name for beverage in BeverageCollection.line_up() if
+                beverage.value.price <= self.deposit]
