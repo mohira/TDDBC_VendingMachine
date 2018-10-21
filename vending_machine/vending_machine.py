@@ -38,8 +38,8 @@ class VendingMachine:
         self.repayment_port += self.deposit
         self.deposit = 0
 
-    def what_can_buy(self) -> List[str]:
-        # 購入可能な飲料名の一覧を出す; 名前があればそのまま指定できるからね！
+    def what_beverage_names_can_buy(self) -> List[str]:
+        # 購入可能な飲料名の一覧を返す。飲料名があればそのままbuy()で使えるため。
         return [beverage.value.name for beverage in BeverageCollection.line_up() if
                 beverage.value.price <= self.deposit]
 
