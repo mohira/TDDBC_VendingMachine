@@ -65,24 +65,24 @@ class TestVendingMachine(unittest.TestCase):
     def setUp(self):
         self.vending_machine = VendingMachine()
 
-    def test_お題2_100円コインを投入してからコーラボタンを押すとコーラが出る(self):
-        self.vending_machine.insert(Coin.yen100)
-        self.assertEqual(BeverageCollection.コーラ, self.vending_machine.push_コーラボタン())
+    def test_必要な残高があれば飲料を購入できる(self):
+        with self.subTest("100円あればコーラを購入できる"):
+            self.vending_machine.insert(Coin.yen100)
+            self.assertEqual(BeverageCollection.コーラ, self.vending_machine.push_コーラボタン())
 
-    def test_お題3_100円コインを投入してから烏龍茶ボタンを押すと烏龍茶が出る(self):
-        self.vending_machine.insert(Coin.yen100)
-        self.assertEqual(BeverageCollection.烏龍茶, self.vending_machine.push_烏龍茶ボタン())
+        with self.subTest("100円あれば烏龍茶を購入できる"):
+            self.vending_machine.insert(Coin.yen100)
+            self.assertEqual(BeverageCollection.烏龍茶, self.vending_machine.push_烏龍茶ボタン())
 
-    def test_お題3_100円コインを投入してから炭酸水ボタンを押すと炭酸水が出る(self):
-        self.vending_machine.insert(Coin.yen100)
+        with self.subTest("100円あれば炭酸水を購入できる"):
+            self.vending_machine.insert(Coin.yen100)
+            self.assertEqual(BeverageCollection.炭酸水, self.vending_machine.push_炭酸水ボタン())
 
-        self.assertEqual(BeverageCollection.炭酸水, self.vending_machine.push_炭酸水ボタン())
+        with self.subTest("200円あればレッドブルを購入できる"):
+            self.vending_machine.insert(Coin.yen100)
+            self.vending_machine.insert(Coin.yen100)
 
-    def test_お題4_200円の残高があるときにレッドブルボタンを押すとレッドブルが出る(self):
-        self.vending_machine.insert(Coin.yen100)
-        self.vending_machine.insert(Coin.yen100)
-
-        self.assertEqual(BeverageCollection.レッドブル, self.vending_machine.push_レッドブルボタン())
+            self.assertEqual(BeverageCollection.レッドブル, self.vending_machine.push_レッドブルボタン())
 
     def test_残高不足の場合の対応(self):
         with self.subTest("200円以上の残高がないとレッドブルボタンを押してもレッドブルは出ない"):
