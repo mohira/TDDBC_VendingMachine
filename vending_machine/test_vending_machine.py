@@ -12,6 +12,13 @@ class TestVendingMachine(unittest.TestCase):
     def setUp(self):
         self.vending_machine = VendingMachine()
 
+    def test_コインを投入すると残高が増える(self):
+        self.vending_machine.insert(Coin.yen100)
+        self.vending_machine.insert(Coin.yen100)
+        self.vending_machine.insert(Coin.yen100)
+
+        self.assertEqual(300, self.vending_machine.deposit)
+
     def test_必要な残高があれば飲料を購入できる(self):
         with self.subTest("100円あればコーラを購入できる"):
             self.vending_machine.insert(Coin.yen100)
